@@ -80,7 +80,7 @@ class Deck:
 
 def main():
     NUM_GAMES = 10000
-    SLAP_PROB = 0.8
+    SLAP_PROB = 0.55
     NUM_PLAYERS = 2
     FACE_CARDS = { 'J': 1, 'Q': 2, 'K': 3, 'A': 4 }
     p1_wins = 0
@@ -89,40 +89,27 @@ def main():
         deck = Deck()
         
         # deal cards
-        # print(len(deck.cards))
         decks = deck.deal(2)
         p1_deck = decks[0]
         p2_deck = decks[1]
         assert deck.empty()
-        # print(len(p1_deck.cards))
-        # print(p1_deck.cards)
 
         # alternate placing cards into a center deck, checking for slaps
         current_player = random.choice(range(NUM_PLAYERS))
         face_card_seen = False
-        # count = 0
         while not p1_deck.empty() and not p2_deck.empty():
             # add card to top of center deck
             card = decks[current_player].draw_card()
             deck.add_card(card)
 
-            ###################################
-            # count += 1
-            # if count > 50:
-            #     assert False
-            # print(deck.cards)
-
             # check for slap or move to next player if not a slap
             if deck.is_slap():
-                # print(deck.cards)
                 rand_num = random.random()
-                # print('before', len(p1_deck.cards), len(p2_deck.cards), rand_num, rand_num < SLAP_PROB, deck.cards)
                 if rand_num < SLAP_PROB:
                     p1_deck.add_deck(deck)
                 else:
                     p2_deck.add_deck(deck)
-                # print('after', len(p1_deck.cards), len(p2_deck.cards))
-                # print()
+
                 face_card_seen = False
             elif deck.cards[0][0] in FACE_CARDS:
                 face_card_seen = True
@@ -140,8 +127,6 @@ def main():
                         face_card_seen = False
                 else: # switch player if not a face card
                     current_player = (current_player + 1) % NUM_PLAYERS
-
-            # assert 0 == 1
 
 
         if p1_deck.empty():
