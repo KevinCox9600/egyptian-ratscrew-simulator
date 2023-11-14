@@ -39,6 +39,7 @@ class Deck:
     def add_deck(self, deck):
         """Add cards to bottom of deck"""
         self.cards.extend(deck.cards)
+        deck.reset()
     
     def add_card(self, card):
         """Add card to top of deck"""
@@ -81,6 +82,7 @@ def main():
     NUM_GAMES = 10000
     SLAP_PROB = 0.8
     NUM_PLAYERS = 2
+    FACE_CARDS = { 'J': 1, 'Q': 2, 'K': 3, 'A': 4 }
     p1_wins = 0
     p2_wins = 0
     for game in range(NUM_GAMES):
@@ -96,12 +98,19 @@ def main():
         # print(p1_deck.cards)
 
         # alternate placing cards into a center deck, checking for slaps
-        current_player = 0
+        current_player = random.choice(range(NUM_PLAYERS))
+        face_card_seen = False
+        # count = 0
         while not p1_deck.empty() and not p2_deck.empty():
-            # print(len(p1_deck.cards), len(p2_deck.cards), len(deck.cards))
-            assert len(p1_deck.cards) + len(p2_deck.cards) + len(deck.cards) == 52
+            # add card to top of center deck
             card = decks[current_player].draw_card()
             deck.add_card(card)
+
+            ###################################
+            # count += 1
+            # if count > 50:
+            #     assert False
+            # print(deck.cards)
 
             # check for slap or move to next player if not a slap
             if deck.is_slap():
@@ -114,11 +123,23 @@ def main():
                     p2_deck.add_deck(deck)
                 # print('after', len(p1_deck.cards), len(p2_deck.cards))
                 # print()
-                
-                # clear center deck after adding cards to players decks
-                deck.reset()
-            else:
+                face_card_seen = False
+            elif deck.cards[0][0] in FACE_CARDS:
+                face_card_seen = True
+                face_card_count = FACE_CARDS[deck.cards[0][0]]
                 current_player = (current_player + 1) % NUM_PLAYERS
+            else:
+                # not a slap
+                # stays same player if face card
+                if face_card_seen:
+                    # if face cards run out, other player gets the cards
+                    face_card_count -= 1
+                    if face_card_count == 0:
+                        opposite_player = (current_player + 1) % NUM_PLAYERS
+                        decks[opposite_player].add_deck(deck)
+                        face_card_seen = False
+                else: # switch player if not a face card
+                    current_player = (current_player + 1) % NUM_PLAYERS
 
             # assert 0 == 1
 
