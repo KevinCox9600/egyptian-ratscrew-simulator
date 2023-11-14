@@ -47,7 +47,7 @@ class Deck:
     def deal(self, players=2):
         decks = []
         for player in range(players):
-            decks.append(Deck())
+            decks.append(Deck(deque()))
         
         # while cards remaining, deal in alternating order to players
         while len(self.cards):
@@ -79,7 +79,7 @@ class Deck:
 
 def main():
     NUM_GAMES = 10000
-    SLAP_PROB = 0.6
+    SLAP_PROB = 0.8
     NUM_PLAYERS = 2
     p1_wins = 0
     p2_wins = 0
@@ -87,39 +87,45 @@ def main():
         deck = Deck()
         
         # deal cards
-        print(len(deck.cards))
-        print(deck.cards)
+        # print(len(deck.cards))
         decks = deck.deal(2)
         p1_deck = decks[0]
         p2_deck = decks[1]
         assert deck.empty()
-        print(len(p1_deck.cards))
+        # print(len(p1_deck.cards))
+        # print(p1_deck.cards)
 
         # alternate placing cards into a center deck, checking for slaps
         current_player = 0
         while not p1_deck.empty() and not p2_deck.empty():
-            print(len(p1_deck.cards), len(p2_deck.cards))
+            # print(len(p1_deck.cards), len(p2_deck.cards), len(deck.cards))
+            assert len(p1_deck.cards) + len(p2_deck.cards) + len(deck.cards) == 52
             card = decks[current_player].draw_card()
             deck.add_card(card)
 
             # check for slap or move to next player if not a slap
             if deck.is_slap():
-                if random.random() < SLAP_PROB:
-                    decks[current_player].add_deck(deck)
+                # print(deck.cards)
+                rand_num = random.random()
+                # print('before', len(p1_deck.cards), len(p2_deck.cards), rand_num, rand_num < SLAP_PROB, deck.cards)
+                if rand_num < SLAP_PROB:
+                    p1_deck.add_deck(deck)
                 else:
-                    decks[(current_player + 1) % NUM_PLAYERS].add_deck(deck)
+                    p2_deck.add_deck(deck)
+                # print('after', len(p1_deck.cards), len(p2_deck.cards))
+                # print()
                 
                 # clear center deck after adding cards to players decks
                 deck.reset()
             else:
                 current_player = (current_player + 1) % NUM_PLAYERS
 
-            assert 0 == 1
+            # assert 0 == 1
 
 
-        if not p1_deck.empty():
+        if p1_deck.empty():
             p2_wins += 1
-        if not p2_deck.empty():
+        if p2_deck.empty():
             p1_wins += 1
     
     print(f'p1 ({SLAP_PROB}): {p1_wins}/{NUM_GAMES} = {p1_wins / NUM_GAMES}')
